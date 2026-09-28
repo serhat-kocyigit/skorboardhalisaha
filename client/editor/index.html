@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasarım Editörü - Halı Saha</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/navigation.css">
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+  <!-- ── TOOLBAR ── -->
+  <header class="editor-toolbar">
+    <div class="toolbar-left">
+      <a href="/" class="toolbar-logo">⚽</a>
+      <span class="toolbar-title">Tasarım Editörü</span>
+      <a href="/scoreboard/" target="_blank" class="toolbar-link tv-link">📺 TV</a>
+      <a href="/referee/"   target="_blank" class="toolbar-link ref-link">📱 Hakem</a>
+    </div>
+    <div class="toolbar-center">
+      <select id="layoutSelect" class="toolbar-select">
+        <option value="">— Layout Seçin —</option>
+      </select>
+      <button class="toolbar-btn" onclick="saveLayout()">💾 Kaydet</button>
+      <button class="toolbar-btn btn-publish" onclick="activateLayout()">🚀 Yayınla</button>
+    </div>
+    <div class="toolbar-right">
+      <button class="toolbar-btn" onclick="resetLayout()">🔄 Sıfırla</button>
+      <button class="toolbar-btn" onclick="newLayout()">➕ Yeni</button>
+    </div>
+  </header>
+
+  <!-- ── WORKSPACE ── -->
+  <div class="editor-workspace">
+
+    <!-- Sol Panel -->
+    <aside class="side-panel">
+
+      <section class="panel-section">
+        <h3 class="panel-section-title">Bileşenler</h3>
+        <div class="component-list">
+          <div class="component-item" data-component="score">
+            <span class="comp-icon">🔢</span><span>Skor</span>
+          </div>
+          <div class="component-item" data-component="timer">
+            <span class="comp-icon">⏱</span><span>Sayaç</span>
+          </div>
+          <div class="component-item" data-component="teamHome">
+            <span class="comp-icon">🏠</span><span>Ev Sahibi</span>
+          </div>
+          <div class="component-item" data-component="teamAway">
+            <span class="comp-icon">✈️</span><span>Deplasman</span>
+          </div>
+          <div class="component-item" data-component="fieldLogo">
+            <span class="comp-icon">🏟</span><span>Saha Bilgisi</span>
+          </div>
+          <div class="component-item" data-component="period">
+            <span class="comp-icon">📋</span><span>Devre</span>
+          </div>
+          <div class="component-item" data-component="lastGoal">
+            <span class="comp-icon">⚽</span><span>Son Gol</span>
+          </div>
+          <div class="component-item" data-component="adBanner">
+            <span class="comp-icon">📢</span><span>Reklam Bandı</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Özellikler -->
+      <section class="panel-section props-section" id="propertiesPanel" style="display:none;">
+        <h3 class="panel-section-title">
+          <span id="selectedLabel">Özellikler</span>
+        </h3>
+
+        <div class="prop-label">Konum</div>
+        <div class="prop-row">
+          <div class="prop-field">
+            <label>X %</label>
+            <input type="number" id="propX" class="prop-input" min="0" max="100" step="0.5" onchange="updateProperty('x')">
+          </div>
+          <div class="prop-field">
+            <label>Y %</label>
+            <input type="number" id="propY" class="prop-input" min="0" max="100" step="0.5" onchange="updateProperty('y')">
+          </div>
+        </div>
+
+        <div class="prop-label">Boyut</div>
+        <div class="prop-row">
+          <div class="prop-field">
+            <label>Gen %</label>
+            <input type="number" id="propW" class="prop-input" min="2" max="100" step="0.5" onchange="updateProperty('w')">
+          </div>
+          <div class="prop-field">
+            <label>Yük %</label>
+            <input type="number" id="propH" class="prop-input" min="2" max="100" step="0.5" onchange="updateProperty('h')">
+          </div>
+        </div>
+
+        <div class="prop-toggle-row">
+          <label class="toggle-label">
+            <input type="checkbox" id="propVisible" onchange="updateProperty('visible')">
+            <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            Görünür
+          </label>
+        </div>
+      </section>
+
+      <!-- İpucu -->
+      <div class="panel-hint">
+        <p>🖱 Sürükle: taşı</p>
+        <p>↔ Köşe: yeniden boyutlandır</p>
+        <p>🖱 Tıkla: seç & düzenle</p>
+      </div>
+
+    </aside>
+
+    <!-- Önizleme Alanı -->
+    <main class="preview-area">
+      <div class="preview-label">16 : 9 &nbsp;·&nbsp; TV Önizleme</div>
+      <div class="preview-wrapper">
+        <div class="preview-bg-gradient"></div>
+        <div class="preview-bg-grid"></div>
+        <div class="preview-container" id="previewContainer">
+
+          <!-- Saha Bilgisi -->
+          <div class="draggable pv-field-info" id="drag-fieldLogo" data-key="fieldLogo">
+            <span class="pv-logo-icon">🏟</span>
+            <span class="pv-field-name">SAHA</span>
+          </div>
+
+          <!-- Devre -->
+          <div class="draggable pv-period" id="drag-period" data-key="period">
+            <span class="pv-period-dot"></span>
+            <span class="pv-period-text">1. YARI</span>
+          </div>
+
+          <!-- Sayaç -->
+          <div class="draggable pv-timer" id="drag-timer" data-key="timer">
+            <span class="pv-timer-display">00:00</span>
+          </div>
+
+          <!-- Ev Sahibi -->
+          <div class="draggable pv-team pv-team-home" id="drag-teamHome" data-key="teamHome">
+            <div class="pv-team-circle">🏠</div>
+            <div class="pv-team-name">EV SAHİBİ</div>
+            <div class="pv-team-cards"><span class="pv-card yellow">🟡 0</span><span class="pv-card red">🔴 0</span></div>
+          </div>
+
+          <!-- Skor -->
+          <div class="draggable pv-score" id="drag-score" data-key="score">
+            <span class="pv-score-num">0</span>
+            <span class="pv-score-sep">:</span>
+            <span class="pv-score-num">0</span>
+          </div>
+
+          <!-- Deplasman -->
+          <div class="draggable pv-team pv-team-away" id="drag-teamAway" data-key="teamAway">
+            <div class="pv-team-circle">✈️</div>
+            <div class="pv-team-name">DEPLASMAN</div>
+            <div class="pv-team-cards"><span class="pv-card yellow">🟡 0</span><span class="pv-card red">🔴 0</span></div>
+          </div>
+
+          <!-- Son Gol -->
+          <div class="draggable pv-last-goal" id="drag-lastGoal" data-key="lastGoal">
+            <span>⚽</span>
+            <span class="pv-goal-text">EV SAHİBİ — 15' (14:30)</span>
+          </div>
+
+          <!-- Reklam Bandı -->
+          <div class="draggable pv-ad-banner" id="drag-adBanner" data-key="adBanner">
+            📢 REKLAM ALANI
+          </div>
+
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/shared/socket-client.js"></script>
+  <script src="/shared/api-client.js"></script>
+  <script src="/shared/animations.js"></script>
+  <script src="/shared/navigation.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>

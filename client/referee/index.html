@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hakem Paneli - Halı Saha</title>
+  <meta name="description" content="Halı Saha Hakem Kontrol Paneli">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/shared/navigation.css">
+  <link rel="stylesheet" href="referee.css">
+</head>
+<body>
+  <!-- Üst Bar -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <span class="app-icon">⚽</span>
+      <h1 class="app-title">Hakem Paneli</h1>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <a href="/scoreboard/" target="_blank" class="top-bar-link" style="color: #00ff88; font-size: 0.8rem; text-decoration: none; font-weight: 600;">📺 TV Skorboard</a>
+      <a href="/editor/" target="_blank" class="top-bar-link" style="color: #4C9AFF; font-size: 0.8rem; text-decoration: none; font-weight: 600;">🎨 Editör</a>
+      <div class="connection-dot" id="connectionDot" title="Bağlantı durumu"></div>
+    </div>
+  </header>
+
+  <!-- Tab Navigation -->
+  <nav class="tab-nav" id="tabNav">
+    <button class="tab-btn active" data-tab="match">⚡ Maç</button>
+    <button class="tab-btn" data-tab="score">🔢 Skor</button>
+    <button class="tab-btn" data-tab="cards">🃏 Kartlar</button>
+    <button class="tab-btn" data-tab="teams">👥 Takımlar</button>
+    <button class="tab-btn" data-tab="settings">⚙️ Ayarlar</button>
+  </nav>
+
+  <!-- Tab İçerikleri -->
+  <main class="tab-content">
+
+    <!-- MAÇ TAB -->
+    <section class="tab-panel active" id="tab-match">
+      <!-- Mevcut Maç Durumu (veya Maç Olmadığında Hızlı Kontrol) -->
+      <div class="card" id="currentMatchCard">
+        <div class="card-header">
+          <h2>Aktif Maç & Hızlı Kontrol</h2>
+          <span class="match-status-badge" id="matchStatusBadge">Bekleniyor</span>
+        </div>
+
+        <div class="match-mini-score" id="matchMiniScoreContainer">
+          <div class="mini-team">
+            <span class="mini-team-name" id="miniHomeName">-</span>
+            <span class="mini-score" id="miniScoreHome">0</span>
+          </div>
+          <span class="mini-separator">:</span>
+          <div class="mini-team">
+            <span class="mini-score" id="miniScoreAway">0</span>
+            <span class="mini-team-name" id="miniAwayName">-</span>
+          </div>
+        </div>
+        <div class="mini-timer" id="miniTimer">00:00</div>
+        <div id="refereeLastGoalBar" style="display:none; margin-top: 0.8rem; padding: 0.6rem 1rem; background: rgba(0,255,136,0.12); border: 1px solid rgba(0,255,136,0.4); border-radius: 10px; font-size: 0.9rem; font-weight: 600; color: #00ff88; text-align: center;"></div>
+
+        <!-- Maç Kontrol Butonları -->
+        <div class="match-controls">
+          <button class="ctrl-btn ctrl-start" id="btnStartMatch" onclick="matchAction('start')">▶ Başlat</button>
+          <button class="ctrl-btn ctrl-pause" id="btnPauseMatch" onclick="matchAction('pause')" style="display:none;">⏸ Duraklat</button>
+          <button class="ctrl-btn ctrl-resume" id="btnResumeMatch" onclick="matchAction('resume')" style="display:none;">▶ Devam</button>
+          <button class="ctrl-btn ctrl-half" id="btnHalfTime" onclick="matchAction('halfTime')" style="display:none;">⏯ Devre</button>
+          <button class="ctrl-btn ctrl-end" id="btnEndMatch" onclick="matchAction('end')">⏹ Bitir</button>
+          <button class="ctrl-btn ctrl-reset" id="btnResetMatch" onclick="matchAction('reset')">🔄 Sıfırla</button>
+        </div>
+
+        <!-- Takımları Sonradan Seç / Güncelle Bölümü ("takımlar gelincede başlatılabilecek / atanabilecek") -->
+        <div id="matchTeamAssignSection" style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+          <h3 style="font-size: 0.85rem; color: #00ff88; margin-bottom: 0.6rem; text-transform: uppercase;">👥 Aktif Maç Takım Atama / Değiştirme</h3>
+          <div class="form-row" style="margin-bottom: 0.6rem;">
+            <div class="form-group" style="flex:1;">
+              <label>Ev Sahibi</label>
+              <select id="assignHomeTeam" class="form-select form-select-sm"></select>
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label>Deplasman</label>
+              <select id="assignAwayTeam" class="form-select form-select-sm"></select>
+            </div>
+          </div>
+          <button class="btn btn-block" style="background: rgba(76,154,255,0.2); color: #4C9AFF; border: 1px solid #4C9AFF;" onclick="assignTeamsToActiveMatch()">
+            💾 Seçili Takımları Bu Maça Ata
+          </button>
+        </div>
+      </div>
+
+      <!-- Yeni Maç Oluştur -->
+      <div class="card" id="newMatchCard">
+        <div class="card-header"><h2>Yeni Maç Oluştur</h2></div>
+        <div class="form-group">
+          <label>Ev Sahibi Takım</label>
+          <select id="selectHomeTeam" class="form-select">
+            <option value="">Takım Seçin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Deplasman Takım</label>
+          <select id="selectAwayTeam" class="form-select">
+            <option value="">Takım Seçin</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Devre Süresi (dk)</label>
+            <input type="number" id="inputPeriodDuration" class="form-input" value="30" min="1" max="60">
+          </div>
+          <div class="form-group">
+            <label>Devre Arası Süresi (dk)</label>
+            <input type="number" id="inputExtraTime" class="form-input" value="5" min="1" max="30">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="createMatch()">⚽ Maç Oluştur</button>
+      </div>
+    </section>
+
+    <!-- SKOR TAB -->
+    <section class="tab-panel" id="tab-score">
+      <div class="card">
+        <div class="card-header"><h2>Skor Kontrol</h2></div>
+        <div class="score-controls">
+          <!-- Ev Sahibi -->
+          <div class="score-team-ctrl">
+            <h3 class="score-team-label" id="scoreHomeName">Ev Sahibi</h3>
+            <div class="score-big" id="scoreCtrlHome">0</div>
+            <div class="score-btns">
+              <button class="score-btn score-minus" onclick="updateScore('home', 'decrement')">−</button>
+              <button class="score-btn score-plus" onclick="updateScore('home', 'increment')">+</button>
+            </div>
+            <div class="form-group" style="margin-top:0.5rem;">
+              <select id="goalPlayerHome" class="form-select form-select-sm">
+                <option value="">Golcü seçin (opsiyonel)</option>
+              </select>
+            </div>
+          </div>
+          <!-- Deplasman -->
+          <div class="score-team-ctrl">
+            <h3 class="score-team-label" id="scoreAwayName">Deplasman</h3>
+            <div class="score-big" id="scoreCtrlAway">0</div>
+            <div class="score-btns">
+              <button class="score-btn score-minus" onclick="updateScore('away', 'decrement')">−</button>
+              <button class="score-btn score-plus" onclick="updateScore('away', 'increment')">+</button>
+            </div>
+            <div class="form-group" style="margin-top:0.5rem;">
+              <select id="goalPlayerAway" class="form-select form-select-sm">
+                <option value="">Golcü seçin (opsiyonel)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- KARTLAR TAB -->
+    <section class="tab-panel" id="tab-cards">
+      <div class="card">
+        <div class="card-header"><h2>Kart Ver</h2></div>
+        <div class="form-group">
+          <label>Takım</label>
+          <select id="cardTeamSelect" class="form-select" onchange="loadCardPlayers()">
+            <option value="">Takım Seçin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Oyuncu</label>
+          <select id="cardPlayerSelect" class="form-select">
+            <option value="">Oyuncu Seçin</option>
+          </select>
+        </div>
+        <div class="card-type-btns">
+          <button class="btn btn-yellow btn-block" onclick="giveCard('yellow')">🟡 Sarı Kart</button>
+          <button class="btn btn-red btn-block" onclick="giveCard('red')">🔴 Kırmızı Kart</button>
+        </div>
+      </div>
+
+      <!-- Verilen Kartlar Listesi -->
+      <div class="card" id="cardsList">
+        <div class="card-header"><h2>Verilen Kartlar</h2></div>
+        <div class="cards-list" id="cardsListContent">
+          <p class="empty-message">Henüz kart verilmedi</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAKIMLAR TAB -->
+    <section class="tab-panel" id="tab-teams">
+      <!-- Yeni Takım -->
+      <div class="card">
+        <div class="card-header"><h2>Yeni Takım</h2></div>
+        <div class="form-group">
+          <label>Takım Adı</label>
+          <input type="text" id="inputTeamName" class="form-input" placeholder="Takım adını girin">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Ana Renk</label>
+            <input type="color" id="inputTeamColor" class="form-color" value="#ffffff">
+          </div>
+          <div class="form-group">
+            <label>Logo</label>
+            <input type="file" id="inputTeamLogo" class="form-file" accept="image/*">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="createTeam()">➕ Takım Ekle</button>
+      </div>
+
+      <!-- Takım Listesi -->
+      <div class="card">
+        <div class="card-header"><h2>Takımlar</h2></div>
+        <div class="teams-list" id="teamsList"></div>
+      </div>
+
+      <!-- Oyuncu Yönetimi -->
+      <div class="card" id="playerManagement" style="display:none;">
+        <div class="card-header">
+          <h2 id="playerTeamTitle">Oyuncular</h2>
+          <button class="btn-close" onclick="closePlayerPanel()">✕</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <input type="text" id="inputPlayerName" class="form-input" placeholder="Oyuncu adı">
+          </div>
+          <div class="form-group" style="flex:1">
+            <input type="number" id="inputPlayerNumber" class="form-input" placeholder="No" min="1" max="99">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <select id="inputPlayerPosition" class="form-select">
+              <option value="kaleci">Kaleci</option>
+              <option value="defans">Defans</option>
+              <option value="ortasaha" selected>Ortasaha</option>
+              <option value="forvet">Forvet</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="addPlayer()" style="flex:1; height:44px;">Ekle</button>
+        </div>
+        <div class="players-list" id="playersList"></div>
+      </div>
+    </section>
+
+    <!-- AYARLAR TAB -->
+    <section class="tab-panel" id="tab-settings">
+      <div class="card">
+        <div class="card-header"><h2>Saha Ayarları</h2></div>
+        <div class="form-group">
+          <label>Saha Adı</label>
+          <input type="text" id="inputFieldName" class="form-input" placeholder="Halı saha adı">
+        </div>
+        <div class="form-group">
+          <label>Saha Logosu</label>
+          <input type="file" id="inputFieldLogo" class="form-file" accept="image/*">
+        </div>
+        <button class="btn btn-primary btn-block" onclick="saveSettings()">💾 Kaydet</button>
+      </div>
+
+      <!-- Reklam Yönetimi -->
+      <div class="card">
+        <div class="card-header"><h2>Reklam Yönetimi</h2></div>
+        <div class="form-group">
+          <label>Reklam Başlığı</label>
+          <input type="text" id="inputAdTitle" class="form-input" placeholder="Reklam adı">
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label>Görsel</label>
+            <input type="file" id="inputAdImage" class="form-file" accept="image/*">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Tip</label>
+            <select id="inputAdType" class="form-select">
+              <option value="banner">Banner</option>
+              <option value="fullscreen">Tam Ekran</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="addAd()">📢 Reklam Ekle</button>
+        <div class="ads-list" id="adsList" style="margin-top:1rem;"></div>
+      </div>
+
+      <!-- Linkler -->
+      <div class="card">
+        <div class="card-header"><h2>Sayfalar</h2></div>
+        <div class="links-grid">
+          <a href="/scoreboard/" target="_blank" class="link-card">📺 Skorboard</a>
+          <a href="/editor/" target="_blank" class="link-card">🎨 Tasarım Editörü</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Mesajlar -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/shared/socket-client.js"></script>
+  <script src="/shared/api-client.js"></script>
+  <script src="/shared/animations.js"></script>
+  <script src="/shared/navigation.js"></script>
+  <script src="referee.js"></script>
+</body>
+</html>

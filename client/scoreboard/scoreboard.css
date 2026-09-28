@@ -1,0 +1,421 @@
+/* ============================================
+   SCOREBOARD CSS — Stadium Broadcast & Ultra-Distance Readable Layout
+   Tüm bileşenler position:absolute,
+   varsayılan konumlar editor resetLayout() ile birebir eşleşir
+   ============================================ */
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --primary:      #00ff88;
+  --primary-glow: rgba(0, 255, 136, 0.55);
+  --primary-dim:  rgba(0, 255, 136, 0.15);
+  --cyan:         #00d2ff;
+  --cyan-glow:    rgba(0, 210, 255, 0.55);
+  --gold:         #FFD700;
+  --gold-glow:    rgba(255, 215, 0, 0.6);
+  --bg-dark:      #02040e;
+  --bg-card:      rgba(14, 20, 42, 0.85);
+  --bg-card2:     rgba(10, 15, 34, 0.82);
+  --border:       rgba(255, 255, 255, 0.18);
+  --border-glow:  rgba(255, 255, 255, 0.35);
+  --text:         #ffffff;
+  --text-dim:     rgba(255, 255, 255, 0.75);
+  --yellow-card:  #FFD700;
+  --red-card:     #FF3B3B;
+  --font-score:   'Orbitron', monospace;
+  --font-body:    'Inter', -apple-system, sans-serif;
+  --radius:       20px;
+  --radius-sm:    12px;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  background: var(--bg-dark);
+  color: var(--text);
+  user-select: none;
+}
+
+/* ---- BACKGROUND & LIGHTING ---- */
+.bg-effects { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+.bg-gradient {
+  position: absolute; inset: 0;
+  background: #02040a;
+}
+
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ---- SCOREBOARD CONTAINER ---- */
+.scoreboard {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ---- ORTAK BİLEŞEN STİLİ ---- */
+.sb-comp {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  container-type: size;
+}
+
+/* =========================================
+   VARSAYILAN KONUMLAR
+   fieldLogo : x=1,  y=2,  w=18, h=12
+   period    : x=36, y=2,  w=26, h=8
+   timer     : x=73, y=2,  w=25, h=12
+   teamHome  : x=2,  y=16, w=27, h=58
+   score     : x=31, y=22, w=36, h=44
+   teamAway  : x=70, y=16, w=27, h=58
+   lastGoal  : x=18, y=77, w=62, h=9
+   adBanner  : x=0,  y=92, w=100,h=8
+   ========================================= */
+
+/* --- SAHA BİLGİSİ --- */
+.sb-field-info {
+  left: 1%;  top: 2%;  width: 18%; height: 12%;
+  justify-content: flex-start;
+  gap: 1rem;
+  padding: 0.6rem 1.4rem;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+.field-logo { 
+  width: clamp(25px, 60cqh, 150px); 
+  height: clamp(25px, 60cqh, 150px); 
+  object-fit: contain; 
+  border-radius: var(--radius-sm); 
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6)); 
+  flex-shrink: 0;
+}
+.field-name {
+  font-size: clamp(0.8rem, 38cqh, 8rem);
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- DEVRE BİLGİSİ --- */
+.sb-period {
+  left: 36%; top: 2%;  width: 26%; height: 8%;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.8rem 1.8rem;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-radius: 50px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+.period-content {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.period-indicator {
+  width: clamp(6px, 22cqh, 40px); 
+  height: clamp(6px, 22cqh, 40px);
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+.period-text {
+  font-size: clamp(0.7rem, 44cqh, 10rem);
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+  white-space: nowrap;
+}
+
+.real-time-clock {
+  font-size: clamp(1.5rem, 60cqh, 12rem);
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: 3px;
+  text-shadow: 0 4px 8px rgba(0,0,0,0.9);
+  white-space: nowrap;
+}
+
+/* --- SAYAÇ (UZAKTAN EN NET GÖRÜNEN BÖLÜM) --- */
+.sb-timer {
+  left: 73%; top: 2%;  width: 25%; height: 12%;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+.timer-display {
+  font-family: var(--font-score);
+  font-size: clamp(1.2rem, 65cqh, 25rem);
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9);
+  letter-spacing: 5px;
+  text-align: center;
+}
+
+/* --- TAKIM PANELLERİ (EV & DEPLASMAN) --- */
+.sb-team-panel {
+  flex-direction: column;
+  gap: 1.5vh;
+  padding: 2.2vh 1.4vw;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+.sb-team-home {
+  left: 2%;  top: 16%; width: 27%; height: 58%;
+  border-top: 5px solid var(--primary);
+}
+
+.sb-team-away {
+  left: 70%; top: 16%; width: 27%; height: 58%;
+  border-top: 5px solid var(--cyan);
+}
+
+.team-logo-wrapper {
+  width: clamp(40px, 34cqmin, 350px);
+  height: clamp(40px, 34cqmin, 350px);
+  border-radius: 50%;
+  background: #020617;
+  border: 2px solid #334155;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.team-logo { width: 85%; height: 85%; object-fit: contain; }
+.team-logo-placeholder { font-size: clamp(1.2rem, 18cqmin, 12rem); }
+
+.team-name {
+  font-size: clamp(0.8rem, 6.5cqh, 8rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-align: center;
+  max-width: 100%;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.9);
+}
+
+/* Kart Sayıları (Sarı/Kırmızı) */
+.team-cards { display: flex; gap: 1rem; margin-top: 0.5vh; }
+.card-badge {
+  padding: calc(0.8cqh) calc(3cqw);
+  border-radius: 35px;
+  font-size: clamp(0.6rem, 3.5cqh, 5rem);
+  font-weight: 800;
+  background: #020617;
+  border: 2px solid #334155;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  display: flex; align-items: center; gap: 0.4rem;
+  letter-spacing: 1px;
+}
+.yellow-badge { color: #FFD700; }
+.red-badge    { color: #FF3B3B; }
+
+/* --- DEV DEV SKOR ALANI (UZAKTAN 100% NET) --- */
+.sb-score {
+  left: 31%; top: 22%; width: 36%; height: 44%;
+  gap: 2vw;
+  padding: 2vh 2vw;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+
+.score-number {
+  font-family: var(--font-score);
+  font-size: clamp(2rem, 58cqh, 30rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.95);
+  min-width: 1ch;
+  text-align: center;
+}
+
+.score-separator {
+  font-family: var(--font-score);
+  font-size: clamp(1.5rem, 42cqh, 20rem);
+  font-weight: 700;
+  color: #94A3B8;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* --- SON GOL BİLGİSİ --- */
+.sb-last-goal {
+  left: 18%; top: 77%; width: 62%; height: 9%;
+  gap: 1.2rem;
+  padding: 0 2.5vw;
+  background: #0f172a;
+  border: 2px solid #1e293b;
+  border-left: 6px solid var(--primary);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.8);
+}
+.last-goal-icon { font-size: clamp(0.8rem, 55cqh, 10rem); }
+.last-goal-text {
+  font-size: clamp(0.7rem, 40cqh, 10rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.9);
+}
+
+/* --- REKLAM BANDI --- */
+.sb-ad-banner {
+  left: 0;   top: 92%; width: 100%; height: 8%;
+  background: #020617;
+  border-top: 3px solid #1e293b;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.9);
+  padding: 0;
+}
+.ad-banner-content { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.ad-image { width: 100%; height: 100%; object-fit: fill; display: block; }
+
+/* ---- FULLSCREEN AD ---- */
+.fullscreen-ad {
+  position: fixed; inset: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.97);
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.4s ease;
+}
+.fullscreen-ad img { max-width: 94vw; max-height: 94vh; object-fit: contain; filter: drop-shadow(0 20px 50px rgba(0,0,0,0.9)); }
+
+/* ---- FULLSCREEN BUTTON ---- */
+.fullscreen-btn {
+  position: fixed; bottom: 2.5vh; right: 2.5vw; z-index: 50;
+  width: 54px; height: 54px;
+  background: rgba(14, 20, 42, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  color: var(--text-dim);
+  font-size: 1.6rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+}
+.fullscreen-btn:hover { background: var(--primary); color: #02040e; transform: scale(1.1) translateY(-2px); box-shadow: 0 12px 30px rgba(0,255,136,0.5); }
+
+/* ---- CONNECTION STATUS ---- */
+.connection-status {
+  position: fixed; top: 1.5vh; right: 1.5vw; z-index: 50;
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.4rem 1rem;
+  background: rgba(10, 15, 34, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 35px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  opacity: 0.75;
+  transition: all 0.3s;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+}
+.connection-status:hover { opacity: 1; transform: translateY(1px); }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--yellow-card); box-shadow: 0 0 10px var(--yellow-card); }
+.connection-status.connected    .status-dot { background: var(--primary); box-shadow: 0 0 12px var(--primary); }
+.connection-status.disconnected .status-dot { background: var(--red-card); box-shadow: 0 0 12px var(--red-card); }
+
+/* ---- ANİMASYONLAR ---- */
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%     { opacity: 0.4; transform: scale(0.85); }
+}
+@keyframes slideInUp {
+  from { transform: translateY(25px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---- GOL ANİMASYONU ---- */
+.goal-animation-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(12, 20, 44, 0.9) 0%, rgba(2, 4, 14, 0.96) 100%);
+  backdrop-filter: blur(20px);
+  animation: fadeIn 0.35s ease;
+}
+.goal-animation-content { text-align: center; animation: goalBounce 0.65s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.goal-text {
+  font-family: var(--font-score);
+  font-size: clamp(6.5rem, 11vw, 11rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, #FFD700, #FF6B35, #FFD700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 50px rgba(255, 215, 0, 0.75));
+  animation: goalGlow 0.5s ease-in-out infinite alternate;
+  letter-spacing: 6px;
+}
+.goal-team   { font-size: 2.6rem; font-weight: 900; color: #ffffff; margin-top: 0.8rem; text-transform: uppercase; letter-spacing: 5px; text-shadow: 0 4px 20px rgba(0,0,0,0.9); }
+.goal-player { font-size: 1.8rem; font-weight: 700; color: var(--primary); margin-top: 0.6rem; letter-spacing: 1.5px; text-shadow: 0 0 25px rgba(0,255,136,0.7); }
+.goal-animation-exit { animation: fadeOut 0.5s ease forwards; }
+
+@keyframes goalBounce { 0% { transform: scale(0.2); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes goalGlow {
+  from { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.6)); }
+  to   { filter: drop-shadow(0 0 80px rgba(255, 215, 0, 1)); }
+}
+
+/* ---- KART ANİMASYONU ---- */
+.card-animation {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 150;
+  animation: cardFlip 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: center;
+}
+.card-visual { width: 120px; height: 170px; border-radius: 16px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), inset 0 2px 5px rgba(255, 255, 255, 0.4); }
+.card-yellow .card-visual { background: linear-gradient(135deg, #FFD700, #FFA000); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 45px rgba(255, 215, 0, 0.6); }
+.card-red    .card-visual { background: linear-gradient(135deg, #FF3B3B, #CC0000); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 45px rgba(255, 59, 59, 0.6); }
+.card-info { margin-top: 1rem; font-weight: 800; font-size: 1.4rem; color: #ffffff; letter-spacing: 1.5px; text-shadow: 0 2px 12px rgba(0,0,0,0.9); }
+.card-animation-exit { animation: fadeOut 0.5s ease forwards; }
+@keyframes cardFlip {
+  0%   { transform: translate(-50%, -50%) rotateY(90deg) scale(0.4); }
+  100% { transform: translate(-50%, -50%) rotateY(0deg) scale(1); }
+}
+
+/* ---- PARTİKÜLLER ---- */
+.particle {
+  position: absolute; width: 12px; height: 12px; border-radius: 50%;
+  animation: particleFly 2s ease-out forwards;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+@keyframes particleFly {
+  0%   { transform: translate(0, 0) scale(1.3); opacity: 1; }
+  100% { transform: translate(var(--tx, 100px), var(--ty, -200px)) scale(0); opacity: 0; }
+}
+

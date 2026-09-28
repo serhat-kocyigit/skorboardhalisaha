@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Tablet Skor - Halı Saha</title>
+
+  <meta name="description" content="Halı Saha Tablet Skor Kontrol Paneli">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="tablet.css">
+  <link rel="stylesheet" href="/shared/navigation.css">
+</head>
+
+<body>
+
+  <div class="tablet-container">
+
+    <!-- Skor Alanı -->
+    <div class="score-section">
+
+      <!-- Ev Sahibi -->
+      <div class="team-score home">
+
+        <div class="team-name" id="homeTeamName">
+          EV SAHİBİ
+        </div>
+
+        <div class="score-display">
+
+          <button class="score-btn minus" onclick="changeScore('home', -1)">
+            -
+          </button>
+
+          <span class="score-value" id="homeScore">
+            0
+          </span>
+
+          <button class="score-btn plus" onclick="changeScore('home', 1)">
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="vs-divider">
+        VS
+      </div>
+
+
+      <!-- Deplasman -->
+      <div class="team-score away">
+
+        <div class="team-name" id="awayTeamName">
+          DEPLASMAN
+        </div>
+
+        <div class="score-display">
+
+          <button class="score-btn minus" onclick="changeScore('away', -1)">
+            -
+          </button>
+
+          <span class="score-value" id="awayScore">
+            0
+          </span>
+
+          <button class="score-btn plus" onclick="changeScore('away', 1)">
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- Bağlantı Durumu -->
+    <div class="connection-status" id="connectionStatus">
+      <span class="status-dot"></span>
+      <span class="status-text">
+        Bağlanıyor...
+      </span>
+    </div>
+
+
+    <!--
+      BURADA HIZLI GEÇİŞ BUTONU YOK!
+
+      navigation.js bunu otomatik oluşturacak.
+    -->
+
+
+    <!-- Tam Ekran -->
+    <button class="fullscreen-btn" id="fullscreenBtn" title="Tam Ekran">
+      ⛶
+    </button>
+
+  </div>
+
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script src="/shared/socket-client.js"></script>
+
+  <script src="/shared/api-client.js"></script>
+
+  <!-- Hızlı Geçiş -->
+  <script src="/shared/navigation.js"></script>
+
+  <!-- Tablet -->
+  <script src="tablet.js"></script>
+
+</body>
+
+</html>
